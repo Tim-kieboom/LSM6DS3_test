@@ -12,7 +12,7 @@ void setup()
   {
     sensor->checkIfDistanceMoved();
   }
-
+  //foo
   sensor->reset();
   delete sensor;
 }
