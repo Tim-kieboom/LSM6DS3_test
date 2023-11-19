@@ -39,6 +39,13 @@ public:
     Vector3* getRawAccelerometerData();
     Vector3* getRawGyroscopeData();
 
+
+    void setAccelerometerReadingSpeed_ms(uint16_t readingSpeed);
+    void setGyroscopeReadingSpeed_ms(uint16_t readingSpeed);
+
+    void setAccelerometerDetectValue(float detectValue);
+    void setGyroscopeDetectValue(float detectValue);
+
 private:
     void getDistanceVector3(Vector3* tempDistance);
     double getDistance(double acceleration);

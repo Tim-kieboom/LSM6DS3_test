@@ -6,7 +6,7 @@ Gyroscope::Gyroscope(LSM6DS3* IMU)
   calibrateGyroscope();
 }
 
-Gyroscope::Gyroscope(LSM6DS3* IMU, double detectValue)
+Gyroscope::Gyroscope(LSM6DS3* IMU, float detectValue)
 : IMU(IMU), detectValue(detectValue)
 {
   calibrateGyroscope();
@@ -32,6 +32,11 @@ Vector3* Gyroscope::readGyroscope()
   return angularAcceleration;
 }
 
+void Gyroscope::setDetectValue(float detectValue)
+{
+  this->detectValue = detectValue;
+}
+
 void Gyroscope::underTheDetectedValue(float &angularAcceleration)
 {
   if(angularAcceleration > -detectValue && angularAcceleration< detectValue)
@@ -40,17 +45,17 @@ void Gyroscope::underTheDetectedValue(float &angularAcceleration)
 
 void Gyroscope::calibrateGyroscope()
 {
-  Vector3** gyroArray = new Vector3*[5];
+  Vector3** gyroArray = new Vector3*[10];
 
-  for(int8_t i = 0; i < 5; i++)
+  for(uint8_t i = 0; i < (uint8_t)sizeof(gyroArray); i++)
   {
     gyroArray[i] = this->readGyroscope();
   }
 
-  Vector3* avarageOffset = gyroOffset->average(gyroArray, 5);
+  Vector3* avarageOffset = gyroOffset->average(gyroArray);
   gyroOffset->replace(avarageOffset);
 
-  for(int8_t i = 0; i < (int8_t)sizeof(gyroArray); i++)
+  for(uint8_t i = 0; i < (uint8_t)sizeof(gyroArray); i++)
   {
     delete gyroArray[i];
   }

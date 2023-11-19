@@ -17,7 +17,7 @@ void WaitTimer::updateNow()
 }
 
 
-bool WaitTimer::wait_ms(uint64_t timeInMilieSecond)
+bool WaitTimer::wait_ms(uint32_t timeInMilieSecond)
 {
     if(now - start >= timeInMilieSecond)
     {
@@ -27,9 +27,9 @@ bool WaitTimer::wait_ms(uint64_t timeInMilieSecond)
     return false;
 }
 
-bool WaitTimer::wait_sec(uint64_t timeInSeconds)
+bool WaitTimer::wait_sec(uint32_t timeInSeconds)
 {
-    uint64_t timeInMilieSecond = timeInSeconds * 1000;
+    uint32_t timeInMilieSecond = timeInSeconds * 1000;
 
     if(now - start >= timeInMilieSecond)
     {

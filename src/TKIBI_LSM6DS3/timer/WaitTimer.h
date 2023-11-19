@@ -8,8 +8,8 @@ class WaitTimer
 {
 private:
 
-    uint64_t start;
-    uint64_t now;
+    uint32_t start;
+    uint32_t now;
 
 public:
     WaitTimer();
@@ -17,8 +17,8 @@ public:
     void startTimer();
     void updateNow();
 
-    bool wait_ms(uint64_t time);
-    bool wait_sec(uint64_t time);
+    bool wait_ms(uint32_t time);
+    bool wait_sec(uint32_t time);
 };
 
 #endif

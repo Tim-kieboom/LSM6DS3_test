@@ -1,6 +1,7 @@
 #include "Accelerometer.h"
 
-#define UNDER_DETECT_VALUE(x) 
+
+//---------------- CONTRUCTORS ----------------
 
 Accelerometer::Accelerometer(LSM6DS3* IMU)
 : IMU(IMU)
@@ -8,11 +9,19 @@ Accelerometer::Accelerometer(LSM6DS3* IMU)
 
 }
 
-Accelerometer::Accelerometer(LSM6DS3* IMU, double detectValue)
+Accelerometer::Accelerometer(LSM6DS3* IMU, float detectValue)
 : IMU(IMU), detectValue(detectValue)
 {
 
 }
+
+Accelerometer::~Accelerometer()
+{
+  delete accelerometerOffset;
+}
+
+//---------------- READINGS ----------------
+
 
 void Accelerometer::getAcceleration(Vector3* acceletarion_gForce, Vector3* gravityConstant) 
 {
@@ -20,12 +29,64 @@ void Accelerometer::getAcceleration(Vector3* acceletarion_gForce, Vector3* gravi
   acceletarion_gForce->replace(readData);
   delete readData;
 
-  acceletarion_gForce->subtract(gravityConstant);
+  //acceletarion_gForce->subtract(gravityConstant);
 
   convertGForceTo_MetersPerSecond(/*out*/ acceletarion_gForce);
 }
 
 Vector3* Accelerometer::readAccelerometer()
+{
+  Vector3* acceleration = rawReading();
+
+  //underTheDetectedValue_Vector(/*out*/ acceleration);
+  acceleration->subtract(accelerometerOffset);
+
+  return acceleration;
+}
+
+Vector3* Accelerometer::getAverageReading()
+{
+  Vector3** accelerations = new Vector3*[10];
+  Vector3* average = new Vector3();
+
+  for(uint8_t i = 0; i < (uint8_t)sizeof(accelerations); i++)
+  {
+    accelerations[i] = rawReading();
+  }
+
+  Vector3* avarageOffset = average->average(accelerations);
+  average->replace(avarageOffset);
+
+  for(uint8_t i = 0; i < (uint8_t)sizeof(accelerations); i++)
+  {
+    delete accelerations[i];
+  }
+
+  delete[] accelerations;
+  return average;
+}
+
+Vector3* Accelerometer::calibrateGravityAccelerometer()
+{
+  Vector3* averageReading = getAverageReading();
+  Vector3* expectedReading = new Vector3(0,0,1);
+
+  accelerometerOffset->replace(averageReading->subtract(expectedReading));
+  accelerometerOffset->print();
+
+  delete expectedReading;
+  return averageReading;
+}
+
+void Accelerometer::setDetectValue(float detectValue)
+{
+  this->detectValue = detectValue;
+}
+
+
+//---------------- PRIVATES ----------------
+
+Vector3* Accelerometer::rawReading()
 {
   auto acceleration = new Vector3();
   float x, y, z;
@@ -34,35 +95,8 @@ Vector3* Accelerometer::readAccelerometer()
   y = IMU->readFloatAccelY();
   z = IMU->readFloatAccelZ();
 
-  underTheDetectedValue(/*out*/ x);
-  underTheDetectedValue(/*out*/ y);
-  underTheDetectedValue(/*out*/ z);
-
-  acceleration->set(x, y, z);   
-
-  return acceleration;
-}
-
-Vector3* Accelerometer::getAverageReading()
-{
-  Vector3** accelerations = new Vector3*[5];
-  Vector3* average = new Vector3();
-
-  for(int8_t i = 0; i < 5; i++)
-  {
-    accelerations[i] = this->readAccelerometer();
-  }
-
-  Vector3* avarageOffset = average->average(accelerations, 5);
-  average->replace(avarageOffset);
-
-  for(int8_t i = 0; i < (int8_t)sizeof(accelerations); i++)
-  {
-    delete accelerations[i];
-  }
-
-  delete[] accelerations;
-  return average;
+  acceleration->set(x, y, z); 
+  return acceleration;  
 }
 
 void Accelerometer::convertGForceTo_MetersPerSecond(Vector3* acceleration)
@@ -72,8 +106,21 @@ void Accelerometer::convertGForceTo_MetersPerSecond(Vector3* acceleration)
   acceleration = acceleration->multiply(gravityConstantTo_MetersPerSecond);
 }
 
-void Accelerometer::underTheDetectedValue(float &acceleration)
+void Accelerometer::underTheDetectedValue_Vector(Vector3* acceleration)
 {
-  if(acceleration > -detectValue && acceleration< detectValue)
+  double x = acceleration->getX();
+  double y = acceleration->getY();
+  double z = acceleration->getZ();
+
+  underTheDetectedValue(/*out*/ x);
+  underTheDetectedValue(/*out*/ y);
+  underTheDetectedValue(/*out*/ z);
+
+  acceleration->set(x, y, z);
+}
+
+void Accelerometer::underTheDetectedValue(double &acceleration)
+{
+  if(acceleration < -detectValue && acceleration > detectValue)
     acceleration = 0;
 }

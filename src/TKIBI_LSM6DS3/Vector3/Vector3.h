@@ -15,6 +15,7 @@ public:
   Vector3(double* array);
   Vector3(Vector3* vector);
 
+
   Vector3 operator+(Vector3   other);
   Vector3 operator+(double    other);
   double* operator+(double*   array);
@@ -39,11 +40,25 @@ public:
   Vector3*   divide(Vector3*  other);
   Vector3*   divide(double  other);
 
-  Vector3* average(Vector3* vectorList[], int numberOfVectors);
+
+  Vector3* average(Vector3* vectorList[]);
+
 
   bool nonZeroValue();
-
   void print();
+
+
+  Vector3 copy();
+  void replace(Vector3* pointer);
+  
+
+  double* getArray();
+  Vector3* getPointer();
+
+  double  getX();
+  double  getY();
+  double  getZ();
+
 
   void  set(double x, double y, double z);
   void  set(double* array);
@@ -53,15 +68,6 @@ public:
   void setX(double x);
   void setY(double y);
   void setZ(double z);
-
-  Vector3 copy();
-  void replace(Vector3* pointer);
-  
-  double* getArray();
-  Vector3* getPointer();
-  double  getX();
-  double  getY();
-  double  getZ();
 };
 
 #endif

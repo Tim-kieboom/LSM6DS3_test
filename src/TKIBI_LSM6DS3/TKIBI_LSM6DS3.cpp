@@ -1,6 +1,6 @@
 #include "TKIBI_LSM6DS3.h"
 #define NEW_VALUE(vector3) vector3.nonZeroValue()
-#define GET_GRAVITYCONSTANT gravityCalibration->replace(accelerometer->getAverageReading())
+#define GET_GRAVITYCONSTANT gravityCalibration->replace(accelerometer->calibrateGravityAccelerometer())
 
 //---------------- CONSTRUCTORS ----------------
 
@@ -21,11 +21,10 @@ TKIBI_LSM6DS3::TKIBI_LSM6DS3(uint16_t accelerometerReadingSpeed_ms, uint16_t gyr
 
 TKIBI_LSM6DS3::~TKIBI_LSM6DS3()
 {
-  delete  
-    gravityCalibration,
-    accelerometer, 
-    gyroscope, 
-    IMU; 
+  delete gravityCalibration;
+  delete accelerometer;
+  delete gyroscope;
+  delete IMU; 
 }
 
 //---------------- EVENTS ----------------
@@ -62,16 +61,17 @@ void TKIBI_LSM6DS3::checkIfDistanceMoved()
     // gyro->print();
     // delete gyro;
 
-    getDistanceVector3(/*out*/ accelerations);
+    // getDistanceVector3(/*out*/ accelerations);
 
-    Vector3* tempDist = distanceMoved->add(accelerations);
-    distanceMoved->replace(tempDist);
+    // Vector3* tempDist = distanceMoved->add(accelerations);
+    // distanceMoved->replace(tempDist);
 
-    Serial.print("distance: ");
-    distanceMoved->print();
-    Serial.println("");
+    // Serial.print("distance: ");
+    // distanceMoved->print();
+    // Serial.println("");
 
     delete accelerations;
+    // delete tempDist;
   }
 
   timer.updateNow();
@@ -90,7 +90,8 @@ void TKIBI_LSM6DS3::printRawData()
   rawGyroData->print();
   Serial.println();
 
-  delete rawAcclrData, rawGyroData;
+  delete rawAcclrData;
+  delete rawGyroData;
 }
 
 Vector3* TKIBI_LSM6DS3::getRawAccelerometerData()
@@ -103,7 +104,27 @@ Vector3* TKIBI_LSM6DS3::getRawGyroscopeData()
   return gyroscope->readGyroscope();
 }
 
-//---------------- OTHER ----------------
+void TKIBI_LSM6DS3::setAccelerometerReadingSpeed_ms(uint16_t readingSpeed)
+{
+  accelerometerReadingSpeed_ms = readingSpeed;
+}
+
+void TKIBI_LSM6DS3::setGyroscopeReadingSpeed_ms(uint16_t readingSpeed)
+{
+  gyroscopeReadingSpeed_ms = readingSpeed;
+}
+
+void TKIBI_LSM6DS3::setAccelerometerDetectValue(float detectValue)
+{
+  accelerometer->setDetectValue(detectValue);
+}
+
+void TKIBI_LSM6DS3::setGyroscopeDetectValue(float detectValue)
+{
+  gyroscope->setDetectValue(detectValue);
+}
+
+//---------------- PRIVATES ----------------
 
 void TKIBI_LSM6DS3::getDistanceVector3(Vector3* distance)
 {

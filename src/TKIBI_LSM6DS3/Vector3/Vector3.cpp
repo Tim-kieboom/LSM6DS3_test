@@ -209,13 +209,14 @@ Vector3* Vector3::divide(double other)
     return this;
 }
 
-Vector3* Vector3::average(Vector3* vectorList[], int numberOfVectors)
+Vector3* Vector3::average(Vector3* vectorArray[])
 {
+    uint16_t numberOfVectors = (uint16_t)sizeof(vectorArray);
     Vector3* addTotal = new Vector3();
 
     for(uint16_t i = 0; i < numberOfVectors; i++)
     {
-        addTotal->add(vectorList[i]);
+        addTotal->add(vectorArray[i]);
     }
     addTotal->divide(numberOfVectors);
 
@@ -239,53 +240,6 @@ void Vector3::print()
     Serial.print(", z: ");
     Serial.print(z);
     Serial.println();
-}
-
-//---------------- SETTERS ----------------
-
-void Vector3::set(double x, double y, double z)
-{
-    this->x = x;
-    this->y = y;
-    this->z = z;
-}
-
-void Vector3::set(double* array)
-{
-    this->x = array[0];
-    this->y = array[1];
-    this->z = array[2];
-
-    delete[] array;
-}
-
-void Vector3::set(Vector3* vector)
-{
-    this->x = vector->getX();
-    this->y = vector->getY();
-    this->z = vector->getZ();
-}
-
-void Vector3::set(Vector3 vector)
-{
-    this->x = vector.getX();
-    this->y = vector.getY();
-    this->z = vector.getZ();
-}
-
-void Vector3::setX(double x)
-{
-    this->x = x;
-}
-
-void Vector3::setY(double y)
-{
-    this->y = y;
-}
-
-void Vector3::setZ(double z)
-{
-    this->z = z;
 }
 
 //---------------- OBJECT MANIPULATION ----------------
@@ -333,4 +287,51 @@ double Vector3::getY()
 double Vector3::getZ()
 {
     return z;
+}
+
+//---------------- SETTERS ----------------
+
+void Vector3::set(double x, double y, double z)
+{
+    this->x = x;
+    this->y = y;
+    this->z = z;
+}
+
+void Vector3::set(double* array)
+{
+    this->x = array[0];
+    this->y = array[1];
+    this->z = array[2];
+
+    delete[] array;
+}
+
+void Vector3::set(Vector3* vector)
+{
+    this->x = vector->getX();
+    this->y = vector->getY();
+    this->z = vector->getZ();
+}
+
+void Vector3::set(Vector3 vector)
+{
+    this->x = vector.getX();
+    this->y = vector.getY();
+    this->z = vector.getZ();
+}
+
+void Vector3::setX(double x)
+{
+    this->x = x;
+}
+
+void Vector3::setY(double y)
+{
+    this->y = y;
+}
+
+void Vector3::setZ(double z)
+{
+    this->z = z;
 }
