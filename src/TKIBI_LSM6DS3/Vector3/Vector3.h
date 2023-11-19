@@ -19,22 +19,27 @@ public:
   Vector3 operator+(double    other);
   double* operator+(double*   array);
   Vector3*      add(Vector3*  other);
+  Vector3*      add(double  other);
 
   Vector3 operator-(Vector3   other);
   Vector3 operator-(double    other);
   double* operator-(double*   array);
   Vector3* subtract(Vector3*  other);
+  Vector3* subtract(double  other);
 
   Vector3 operator*(Vector3   other);
   Vector3 operator*(double    other);
   double* operator*(double*   array);
+  Vector3* multiply(Vector3*    other);
   Vector3* multiply(double    other);
 
   Vector3 operator/(Vector3   other);
   Vector3 operator/(double    other);
   double* operator/(double*   array);
   Vector3*   divide(Vector3*  other);
+  Vector3*   divide(double  other);
 
+  Vector3* average(Vector3* vectorList[], int numberOfVectors);
 
   bool nonZeroValue();
 

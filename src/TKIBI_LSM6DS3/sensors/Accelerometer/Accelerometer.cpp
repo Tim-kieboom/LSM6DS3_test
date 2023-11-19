@@ -43,6 +43,28 @@ Vector3* Accelerometer::readAccelerometer()
   return acceleration;
 }
 
+Vector3* Accelerometer::getAverageReading()
+{
+  Vector3** accelerations = new Vector3*[5];
+  Vector3* average = new Vector3();
+
+  for(int8_t i = 0; i < 5; i++)
+  {
+    accelerations[i] = this->readAccelerometer();
+  }
+
+  Vector3* avarageOffset = average->average(accelerations, 5);
+  average->replace(avarageOffset);
+
+  for(int8_t i = 0; i < (int8_t)sizeof(accelerations); i++)
+  {
+    delete accelerations[i];
+  }
+
+  delete[] accelerations;
+  return average;
+}
+
 void Accelerometer::convertGForceTo_MetersPerSecond(Vector3* acceleration)
 {
   const double gravityConstantTo_MetersPerSecond = 9.80665;

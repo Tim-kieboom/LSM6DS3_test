@@ -1,19 +1,22 @@
 #include "TKIBI_LSM6DS3.h"
 #define NEW_VALUE(vector3) vector3.nonZeroValue()
-#define GET_GRAVITYCONSTANT gravityCalibration->replace(accelerometer->readAccelerometer())
+#define GET_GRAVITYCONSTANT gravityCalibration->replace(accelerometer->getAverageReading())
 
 //---------------- CONSTRUCTORS ----------------
 
 TKIBI_LSM6DS3::TKIBI_LSM6DS3()
-: accelerometer(new Accelerometer(IMU)), gyroscope(new Gyroscope(IMU))
 {
-
+  setup_Sensor();
+  accelerometer = new Accelerometer(IMU);
+  gyroscope = new Gyroscope(IMU);
 }
 
 TKIBI_LSM6DS3::TKIBI_LSM6DS3(uint16_t accelerometerReadingSpeed_ms, uint16_t gyroscopeReadingSpeed_ms)
-: accelerometerReadingSpeed_ms(accelerometerReadingSpeed_ms), gyroscopeReadingSpeed_ms(gyroscopeReadingSpeed_ms), accelerometer(new Accelerometer(IMU)), gyroscope(new Gyroscope(IMU))
+: accelerometerReadingSpeed_ms(accelerometerReadingSpeed_ms), gyroscopeReadingSpeed_ms(gyroscopeReadingSpeed_ms)
 {
-
+  setup_Sensor();
+  accelerometer = new Accelerometer(IMU);
+  gyroscope = new Gyroscope(IMU);
 }
 
 TKIBI_LSM6DS3::~TKIBI_LSM6DS3()
@@ -29,7 +32,6 @@ TKIBI_LSM6DS3::~TKIBI_LSM6DS3()
 
 void TKIBI_LSM6DS3::start()
 {
-  setup_Sensor();
   GET_GRAVITYCONSTANT;
   timer.startTimer();
 }
@@ -55,6 +57,10 @@ void TKIBI_LSM6DS3::checkIfDistanceMoved()
 
     accelerometer->getAcceleration(/*out*/ accelerations, gravityCalibration);
     accelerations->print();
+    
+    // Vector3* gyro = gyroscope->readGyroscope();
+    // gyro->print();
+    // delete gyro;
 
     getDistanceVector3(/*out*/ accelerations);
 

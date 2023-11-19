@@ -53,12 +53,22 @@ double* Vector3::operator+(double* array)
 
 Vector3* Vector3::add(Vector3* other)
 {
-    double _x = x + other->getX();
-    double _y = y + other->getY();
-    double _z = z + other->getZ();
+    this->x = x + other->getX();
+    this->y = y + other->getY();
+    this->z = z + other->getZ();
 
-    return new Vector3(_x, _y, _z);
+    return this;
 }
+
+Vector3* Vector3::add(double other)
+{
+    this->x = x + other;
+    this->y = y + other;
+    this->z = z + other;
+
+    return this;
+}
+
 
 
 Vector3 Vector3::operator-(Vector3 other)
@@ -97,6 +107,16 @@ Vector3* Vector3::subtract(Vector3* other)
     return this;
 }
 
+Vector3* Vector3::subtract(double other)
+{
+    this->x = x - other;
+    this->y = y - other;
+    this->z = z - other;
+
+    return this;
+}
+
+
 Vector3 Vector3::operator*(Vector3 other)
 {
     double _x = x * other.x;
@@ -124,6 +144,15 @@ double* Vector3::operator*(double* array)
     return array;
 }
 
+Vector3* Vector3::multiply(Vector3* other)
+{
+    this->x = x * other->getX();
+    this->y = y * other->getY();
+    this->z = z * other->getZ();
+
+    return this;
+}
+
 Vector3* Vector3::multiply(double other)
 {
     this->x = x * other;
@@ -132,6 +161,7 @@ Vector3* Vector3::multiply(double other)
 
     return this;
 }
+
 
 
 Vector3 Vector3::operator/(Vector3 other)
@@ -168,6 +198,28 @@ Vector3* Vector3::divide(Vector3* other)
     this->z = z / other->getZ();
 
     return this;
+}
+
+Vector3* Vector3::divide(double other)
+{
+    this->x = x / other;
+    this->y = y / other;
+    this->z = z / other;
+
+    return this;
+}
+
+Vector3* Vector3::average(Vector3* vectorList[], int numberOfVectors)
+{
+    Vector3* addTotal = new Vector3();
+
+    for(uint16_t i = 0; i < numberOfVectors; i++)
+    {
+        addTotal->add(vectorList[i]);
+    }
+    addTotal->divide(numberOfVectors);
+
+    return addTotal;
 }
 
 //---------------- PRINT/LOGIC ----------------

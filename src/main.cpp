@@ -8,9 +8,12 @@ void setup()
   TKIBI_LSM6DS3* sensor = new TKIBI_LSM6DS3(500, 500);
   sensor->start();
 
+  Gyroscope gyro = Gyroscope(new LSM6DS3(I2C_MODE, 0x6A));
+
   while(1)
   {
     sensor->checkIfDistanceMoved();
+    delay(500);
   }
 
   sensor->reset();

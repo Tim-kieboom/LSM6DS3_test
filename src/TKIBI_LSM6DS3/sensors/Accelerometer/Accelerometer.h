@@ -20,6 +20,7 @@ public:
 
     void getAcceleration(Vector3* accelerations, Vector3* gravityConstant); 
     Vector3* readAccelerometer();
+    Vector3* getAverageReading();
 
 private:   
     void underTheDetectedValue(float &acceleration);
