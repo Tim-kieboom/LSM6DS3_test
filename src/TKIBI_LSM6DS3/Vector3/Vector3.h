@@ -46,9 +46,11 @@ public:
 
   bool nonZeroValue();
   void print();
+  void print(String name);
 
 
   Vector3 copy();
+  Vector3* copyPointer();
   void replace(Vector3* pointer);
   
 

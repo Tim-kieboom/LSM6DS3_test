@@ -29,7 +29,7 @@ void Accelerometer::getAcceleration(Vector3* acceletarion_gForce, Vector3* gravi
   acceletarion_gForce->replace(readData);
   delete readData;
 
-  //acceletarion_gForce->subtract(gravityConstant);
+  acceletarion_gForce->subtract(gravityConstant);
 
   convertGForceTo_MetersPerSecond(/*out*/ acceletarion_gForce);
 }
@@ -38,7 +38,7 @@ Vector3* Accelerometer::readAccelerometer()
 {
   Vector3* acceleration = rawReading();
 
-  //underTheDetectedValue_Vector(/*out*/ acceleration);
+  underTheDetectedValue_Vector(/*out*/ acceleration);
   acceleration->subtract(accelerometerOffset);
 
   return acceleration;
@@ -71,7 +71,10 @@ Vector3* Accelerometer::calibrateGravityAccelerometer()
   Vector3* averageReading = getAverageReading();
   Vector3* expectedReading = new Vector3(0,0,1);
 
-  accelerometerOffset->replace(averageReading->subtract(expectedReading));
+  Vector3* tempOffset = averageReading->copyPointer();
+  tempOffset->replace(tempOffset->subtract(expectedReading));
+
+  accelerometerOffset->replace(tempOffset);
   accelerometerOffset->print();
 
   delete expectedReading;

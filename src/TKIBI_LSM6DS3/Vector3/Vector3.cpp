@@ -242,11 +242,25 @@ void Vector3::print()
     Serial.println();
 }
 
+void Vector3::print(String name)
+{
+    Serial.print("[");
+    Serial.print(name);
+    Serial.print("] ");
+    this->print();
+}
+
+
 //---------------- OBJECT MANIPULATION ----------------
 
 Vector3 Vector3::copy()
 {
     return Vector3(x, y, z);
+}
+
+ Vector3* Vector3::copyPointer()
+{
+    return new Vector3(x, y, z);
 }
 
 void Vector3::replace(Vector3* pointer)

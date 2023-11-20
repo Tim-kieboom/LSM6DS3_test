@@ -12,7 +12,7 @@ class Accelerometer
 {
 private:
     LSM6DS3* IMU;
-    Vector3* accelerometerOffset = new Vector3(0,0,0);
+    Vector3* accelerometerOffset = new Vector3();
     float detectValue = 0.05;
 
 public:
