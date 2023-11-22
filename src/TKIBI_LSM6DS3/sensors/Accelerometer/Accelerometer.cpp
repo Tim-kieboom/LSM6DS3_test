@@ -1,7 +1,7 @@
 #include "Accelerometer.h"
 
 
-//---------------- CONTRUCTORS ----------------
+//-------------------------------- CONTRUCTORS --------------------------------
 
 Accelerometer::Accelerometer(LSM6DS3* IMU)
 : IMU(IMU)
@@ -20,7 +20,7 @@ Accelerometer::~Accelerometer()
   delete accelerometerOffset;
 }
 
-//---------------- READINGS ----------------
+//-------------------------------- SERNOR_DATA --------------------------------
 
 
 void Accelerometer::getAcceleration(Vector3* acceletarion_gForce, Vector3* gravityConstant) 
@@ -38,8 +38,8 @@ Vector3* Accelerometer::readAccelerometer()
 {
   Vector3* acceleration = rawReading();
 
-  underTheDetectedValue_Vector(/*out*/ acceleration);
   acceleration->subtract(accelerometerOffset);
+  underTheDetectedValue_Vector(/*out*/ acceleration);
 
   return acceleration;
 }
@@ -54,7 +54,7 @@ Vector3* Accelerometer::getAverageReading()
     accelerations[i] = rawReading();
   }
 
-  Vector3* avarageOffset = average->average(accelerations);
+  Vector3* avarageOffset = average->average(accelerations, (uint16_t)sizeof(accelerations));
   average->replace(avarageOffset);
 
   for(uint8_t i = 0; i < (uint8_t)sizeof(accelerations); i++)
@@ -72,7 +72,7 @@ Vector3* Accelerometer::calibrateGravityAccelerometer()
   Vector3* expectedReading = new Vector3(0,0,1);
 
   Vector3* tempOffset = averageReading->copyPointer();
-  tempOffset->replace(tempOffset->subtract(expectedReading));
+  tempOffset = tempOffset->subtract(expectedReading);
 
   accelerometerOffset->replace(tempOffset);
   accelerometerOffset->print();
@@ -80,14 +80,6 @@ Vector3* Accelerometer::calibrateGravityAccelerometer()
   delete expectedReading;
   return averageReading;
 }
-
-void Accelerometer::setDetectValue(float detectValue)
-{
-  this->detectValue = detectValue;
-}
-
-
-//---------------- PRIVATES ----------------
 
 Vector3* Accelerometer::rawReading()
 {
@@ -101,6 +93,15 @@ Vector3* Accelerometer::rawReading()
   acceleration->set(x, y, z); 
   return acceleration;  
 }
+
+//-------------------------------- SETTERS --------------------------------
+
+void Accelerometer::setDetectValue(float detectValue)
+{
+  this->detectValue = detectValue;
+}
+
+//-------------------------------- PRIVATES --------------------------------
 
 void Accelerometer::convertGForceTo_MetersPerSecond(Vector3* acceleration)
 {

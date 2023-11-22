@@ -1,5 +1,7 @@
 #include "Gyroscope.h"
 
+//-------------------------------- CONSTRUCTOR --------------------------------
+
 Gyroscope::Gyroscope(LSM6DS3* IMU)
 : IMU(IMU)
 {
@@ -17,7 +19,39 @@ Gyroscope::~Gyroscope()
   delete gyroOffset;
 }
 
+//-------------------------------- SENSOR_DATA --------------------------------
+
 Vector3* Gyroscope::readGyroscope()
+{
+  Vector3* angularAcceleration = rawReading();
+
+  angularAcceleration->subtract(gyroOffset);
+  underTheDetectedValue_Vector(/*out*/ angularAcceleration);
+
+  return angularAcceleration;
+}
+
+Vector3* Gyroscope::getAverageReading()
+{
+  Vector3** gyroArray = new Vector3*[10];
+
+  for(uint8_t i = 0; i < (uint8_t)sizeof(gyroArray); i++)
+  {
+    gyroArray[i] = this->readGyroscope();
+  }
+
+  Vector3* avarageOffset = gyroOffset->average(gyroArray, (uint16_t)sizeof(gyroArray));
+
+  for(uint8_t i = 0; i < (uint8_t)sizeof(gyroArray); i++)
+  {
+    delete gyroArray[i];
+  }
+
+  delete[] gyroArray;
+  return avarageOffset;
+}
+
+Vector3* Gyroscope::rawReading()
 {
   Vector3* angularAcceleration = new Vector3();
   float x, y, z;
@@ -27,17 +61,33 @@ Vector3* Gyroscope::readGyroscope()
   z = IMU->readFloatGyroZ(); 
 
   angularAcceleration->set(x, y, z);
-  angularAcceleration->subtract(gyroOffset);
 
   return angularAcceleration;
 }
+
+//-------------------------------- SETTERS --------------------------------
 
 void Gyroscope::setDetectValue(float detectValue)
 {
   this->detectValue = detectValue;
 }
 
-void Gyroscope::underTheDetectedValue(float &angularAcceleration)
+//-------------------------------- PRIVATES --------------------------------
+
+void Gyroscope::underTheDetectedValue_Vector(Vector3* angularAcceleration)
+{
+  double x = angularAcceleration->getX();
+  double y = angularAcceleration->getY();
+  double z = angularAcceleration->getZ();
+
+  underTheDetectedValue(/*out*/ x);
+  underTheDetectedValue(/*out*/ y);
+  underTheDetectedValue(/*out*/ z);
+
+  angularAcceleration->set(x, y, z);
+}
+
+void Gyroscope::underTheDetectedValue(double &angularAcceleration)
 {
   if(angularAcceleration > -detectValue && angularAcceleration< detectValue)
     angularAcceleration = 0;
@@ -45,20 +95,6 @@ void Gyroscope::underTheDetectedValue(float &angularAcceleration)
 
 void Gyroscope::calibrateGyroscope()
 {
-  Vector3** gyroArray = new Vector3*[10];
-
-  for(uint8_t i = 0; i < (uint8_t)sizeof(gyroArray); i++)
-  {
-    gyroArray[i] = this->readGyroscope();
-  }
-
-  Vector3* avarageOffset = gyroOffset->average(gyroArray);
+  Vector3* avarageOffset = getAverageReading();
   gyroOffset->replace(avarageOffset);
-
-  for(uint8_t i = 0; i < (uint8_t)sizeof(gyroArray); i++)
-  {
-    delete gyroArray[i];
-  }
-
-  delete[] gyroArray;
 }

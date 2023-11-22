@@ -1,6 +1,6 @@
 #include "Vector3.h"
 
-//---------------- CONSTRUCTORS ----------------
+//-------------------------------- CONSTRUCTORS --------------------------------
 
 Vector3::Vector3()
 { 
@@ -22,7 +22,7 @@ Vector3::Vector3(Vector3* vector)
     this->set(vector);
 }
 
-//---------------- OPERATORS ----------------
+//-------------------------------- OPERATORS --------------------------------
 
 Vector3 Vector3::operator+(Vector3 other)
 {
@@ -209,9 +209,8 @@ Vector3* Vector3::divide(double other)
     return this;
 }
 
-Vector3* Vector3::average(Vector3* vectorArray[])
+Vector3* Vector3::average(Vector3* vectorArray[], uint16_t numberOfVectors)
 {
-    uint16_t numberOfVectors = (uint16_t)sizeof(vectorArray);
     Vector3* addTotal = new Vector3();
 
     for(uint16_t i = 0; i < numberOfVectors; i++)
@@ -223,7 +222,7 @@ Vector3* Vector3::average(Vector3* vectorArray[])
     return addTotal;
 }
 
-//---------------- PRINT/LOGIC ----------------
+//-------------------------------- PRINT/LOGIC --------------------------------
 
 bool Vector3::nonZeroValue()
 {
@@ -251,7 +250,7 @@ void Vector3::print(String name)
 }
 
 
-//---------------- OBJECT MANIPULATION ----------------
+//-------------------------------- OBJECT_MANIPULATION --------------------------------
 
 Vector3 Vector3::copy()
 {
@@ -270,7 +269,7 @@ void Vector3::replace(Vector3* pointer)
     delete pointer;
 }
 
-//---------------- GETTERS ----------------
+//-------------------------------- GETTERS --------------------------------
 
 double* Vector3::getArray()
 {
@@ -303,7 +302,7 @@ double Vector3::getZ()
     return z;
 }
 
-//---------------- SETTERS ----------------
+//-------------------------------- SETTERS --------------------------------
 
 void Vector3::set(double x, double y, double z)
 {
