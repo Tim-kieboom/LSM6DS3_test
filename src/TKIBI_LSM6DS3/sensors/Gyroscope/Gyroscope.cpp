@@ -21,6 +21,16 @@ Gyroscope::~Gyroscope()
 
 //-------------------------------- SENSOR_DATA --------------------------------
 
+void Gyroscope::getAngularAcceleration(Vector3* angularAcceleration)
+{
+  Vector3* readData = readGyroscope();
+
+  //--add filters--
+
+  angularAcceleration->replace(readData);
+}
+
+
 Vector3* Gyroscope::readGyroscope()
 {
   Vector3* angularAcceleration = rawReading();

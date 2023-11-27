@@ -8,21 +8,22 @@ class WaitTimer
 {
 private:
 
-    uint16_t start = 1;
-    uint16_t now = 0;
+    uint64_t start = 1;
+    uint64_t now = 0;
 
 public:
     WaitTimer();
 
-    //set start at currentTime
+    //set start at currentTime (also can be called as a reset of the timer)
     void startTimer();
     //set now at currentTime
     void updateNow();
 
+
     //returns true if time has elapsed (time in milliseconds)
-    bool wait_ms(uint16_t time); 
+    bool wait_ms(uint64_t time); 
     //returns true if time has elapsed (time in seconds)
-    bool wait_sec(uint16_t time); 
+    bool wait_sec(uint32_t time); 
 };
 
 #endif

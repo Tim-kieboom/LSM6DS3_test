@@ -2,9 +2,19 @@
 #define GYRO_TIMER gyroscopeTimer.wait_ms(gyroscopeReadingSpeed_ms)
 #define ACCELEROMETER_TIMER accelerometerTimer.wait_ms(accelerometerReadingSpeed_ms)
 
+
 //-------------------------------- CONSTRUCTORS --------------------------------
 
+
 TKIBI_LSM6DS3::TKIBI_LSM6DS3()
+{
+  setup_Sensor();
+  accelerometer = new Accelerometer(IMU);
+  gyroscope = new Gyroscope(IMU);
+}
+
+TKIBI_LSM6DS3::TKIBI_LSM6DS3(double initialSpeed)
+: initialSpeed(initialSpeed)
 {
   setup_Sensor();
   accelerometer = new Accelerometer(IMU);
@@ -19,6 +29,14 @@ TKIBI_LSM6DS3::TKIBI_LSM6DS3(uint16_t accelerometerReadingSpeed_ms, uint16_t gyr
   gyroscope = new Gyroscope(IMU);
 }
 
+TKIBI_LSM6DS3::TKIBI_LSM6DS3(uint16_t accelerometerReadingSpeed_ms, uint16_t gyroscopeReadingSpeed_ms, double initialSpeed)
+: accelerometerReadingSpeed_ms(accelerometerReadingSpeed_ms), gyroscopeReadingSpeed_ms(gyroscopeReadingSpeed_ms), initialSpeed(initialSpeed)
+{
+  setup_Sensor();
+  accelerometer = new Accelerometer(IMU);
+  gyroscope = new Gyroscope(IMU);
+}
+
 TKIBI_LSM6DS3::~TKIBI_LSM6DS3()
 {
   delete gravityCalibration;
@@ -27,7 +45,9 @@ TKIBI_LSM6DS3::~TKIBI_LSM6DS3()
   delete IMU; 
 }
 
+
 //-------------------------------- EVENTS --------------------------------
+
 
 void TKIBI_LSM6DS3::start()
 {
@@ -71,44 +91,43 @@ void TKIBI_LSM6DS3::restart()
   distanceMoved->replace(new Vector3());
 }
 
+
 //-------------------------------- SENSOR_DATA --------------------------------
+
 
 void TKIBI_LSM6DS3::checkIfDistanceMoved()
 {
-  static Vector3* gyro;
-  static Vector3* accelerations;
-
   if(GYRO_TIMER)
   {
-    delete gyro;
-    gyro = gyroscope->readGyroscope();
-    gyro->print();
+    gyroscope->getAngularAcceleration(/*out*/ gyroAccelerations);
   }
 
   if(ACCELEROMETER_TIMER)
   {
-    delete accelerations;
-    accelerations = new Vector3();
-    accelerometer->getAcceleration(/*out*/ accelerations, gravityCalibration);
-    accelerations->print();
-    
-    getDistanceVector3(/*out*/ accelerations);
+    uint64_t sensorTime = millis();
+    Vector3* prevDistanceMoved = distanceMoved->copyPointer();
 
-    Vector3* tempDist = distanceMoved->add(accelerations);
-    distanceMoved->replace(tempDist);
+    accelerometer->getAcceleration(/*out*/ accelerations, gravityCalibration);
+    getDistanceVector3(/*out*/ accelerations, sensorTime);
+
+    distanceMoved = distanceMoved->add(accelerations);
+
+    accelerations->print("accl");
 
     Serial.print("distance: ");
     distanceMoved->print();
     Serial.println("");
 
-    delete tempDist;
+    delete prevDistanceMoved;
   }
 
   accelerometerTimer.updateNow();
   gyroscopeTimer.updateNow();
 }
 
+
 //-------------------------------- PRINT_DATA --------------------------------
+
 
 void TKIBI_LSM6DS3::printRawData()
 {
@@ -118,7 +137,7 @@ void TKIBI_LSM6DS3::printRawData()
 
 void TKIBI_LSM6DS3::printRawAccelerometerData()
 {
-  Vector3* rawAcclrData = accelerometer->readAccelerometer();
+  Vector3* rawAcclrData = accelerometer->rawReading();
 
   Serial.println("Accelerometer raw data:");
   rawAcclrData->print();
@@ -127,6 +146,34 @@ void TKIBI_LSM6DS3::printRawAccelerometerData()
   delete rawAcclrData;
 }
 void TKIBI_LSM6DS3::printRawGyroscopeData()
+{
+  Vector3* rawGyroData = gyroscope->rawReading();
+
+  Serial.println("Gyroscop raw data:");
+  rawGyroData->print();
+  Serial.println();
+
+  delete rawGyroData;
+}
+
+void TKIBI_LSM6DS3::printData()
+{
+  printAccelerometerData();
+  printGyroscopeData();
+}
+
+void TKIBI_LSM6DS3::printAccelerometerData()
+{
+  Vector3* rawAcclrData = accelerometer->readAccelerometer();
+
+  Serial.println("Accelerometer raw data:");
+  rawAcclrData->print();
+  Serial.println();
+
+  delete rawAcclrData;
+}
+
+void TKIBI_LSM6DS3::printGyroscopeData()
 {
   Vector3* rawGyroData = gyroscope->readGyroscope();
 
@@ -137,7 +184,9 @@ void TKIBI_LSM6DS3::printRawGyroscopeData()
   delete rawGyroData;
 }
 
+
 //-------------------------------- GETTERS --------------------------------
+
 
 Vector3* TKIBI_LSM6DS3::getRawAccelerometerData()
 {
@@ -149,7 +198,24 @@ Vector3* TKIBI_LSM6DS3::getRawGyroscopeData()
   return gyroscope->readGyroscope();
 }
 
+Accelerometer* TKIBI_LSM6DS3::getAccelerometer()
+{
+  return accelerometer;
+}
+
+Gyroscope* TKIBI_LSM6DS3::getGyroscope()
+{
+  return gyroscope;
+}
+
+double TKIBI_LSM6DS3::getCurrentSpeed()
+{
+  return initialSpeed;
+}
+
+
 //-------------------------------- SETTERS --------------------------------
+
 
 void TKIBI_LSM6DS3::setAccelerometerReadingSpeed_ms(uint16_t readingSpeed)
 {
@@ -171,26 +237,50 @@ void TKIBI_LSM6DS3::setGyroscopeDetectValue(float detectValue)
   gyroscope->setDetectValue(detectValue);
 }
 
+void TKIBI_LSM6DS3::setCurrentSpeed(double initialSpeed)
+{
+  this->initialSpeed = initialSpeed;
+}
+
 //-------------------------------- PRIVATES --------------------------------
 
-void TKIBI_LSM6DS3::getDistanceVector3(Vector3* distance)
+
+void TKIBI_LSM6DS3::getDistanceVector3(Vector3* distance, uint64_t beginReadingTime)
 {
-  double distance_x = getDistance(distance->getX());
-  double distance_z = getDistance(distance->getY());
-  double distance_y = getDistance(distance->getZ());
+  uint64_t sensorReadingTime = beginReadingTime - millis();
+
+  double distance_x = getDistance(distance->getX(), sensorReadingTime);
+  double distance_y = getDistance(distance->getY(), sensorReadingTime);
+  double distance_z = getDistance(distance->getZ(), sensorReadingTime);
 
   distance->set(distance_x, distance_y, distance_z);
 } 
 
-double TKIBI_LSM6DS3::getDistance(double acceleration)
+
+double TKIBI_LSM6DS3::getDistance(double acceleration, uint64_t sensorReadingTime)
 {
-  static double speed = 0;
+  /*
+    the formula is:
+    D = v*t + 1/2 * a * t^2
 
-  double sensorReadingSpeed_s = accelerometerReadingSpeed_ms / 1000.0;
-  double accelerationPer_s = acceleration * sensorReadingSpeed_s;
+    D = distance (in meters)
+    v = velocity (in m/s)
+    a = acceleration (in m/s^2)
+    t = time (in seconds)
+  */
 
-  speed += accelerationPer_s;
-  return speed * accelerometerReadingSpeed_ms;
+  //add the time it takes to read the acceleration plus the wait time between readings
+  uint64_t totalTime_milieSeconds = sensorReadingTime + (uint64_t)accelerometerReadingSpeed_ms;
+  double totalTime = (double)totalTime_milieSeconds / 1000.0;
+
+  // newSpeed = 1/2 * a * t^2
+  double newSpeed = (double)0.5 * acceleration * pow(totalTime, 2);
+  //distance = v*t + 1/2 * a * t^2
+  double distance = (initialSpeed * totalTime) + newSpeed;
+
+  initialSpeed = newSpeed;
+
+  return distance;
 }
 
 void TKIBI_LSM6DS3::setup_Sensor()

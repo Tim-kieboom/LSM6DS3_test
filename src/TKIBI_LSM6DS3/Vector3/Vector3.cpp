@@ -229,6 +229,10 @@ bool Vector3::nonZeroValue()
     return x != 0 && y != 0 && z != 0;
 }
 
+bool Vector3::isTheSame(Vector3* other)
+{
+    return x == other->getX() && y == other->getY() && z == other->getZ();
+}
 
 void Vector3::print()
 {

@@ -54,6 +54,8 @@ public:
 
   //returns true if all values are zero
   bool nonZeroValue();
+  //returns true if all values are the same
+  bool isTheSame(Vector3* other);
 
   void print();
   void print(String name);

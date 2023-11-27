@@ -13,12 +13,12 @@ class Accelerometer
 private:
     //libary object for accelerometer
     LSM6DS3* IMU;
-
     Vector3* accelerometerOffset = new Vector3();
 
-    float detectValue = 0.05;
-
+    float detectValue = 0.04;
+    
 public:
+
 //-------------------------------- CONTRUCTORS --------------------------------
 
 

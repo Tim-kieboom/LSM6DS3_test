@@ -30,6 +30,8 @@ public:
 //-------------------------------- SENSOR_DATA --------------------------------
 
 
+    void getAngularAcceleration(Vector3* angularAcceleration);
+
     //rawReading minus the gyroOffset and using the underTheDetectedValue_Vector() function
     Vector3* readGyroscope();
 

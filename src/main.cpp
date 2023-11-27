@@ -10,13 +10,17 @@ void setup()
 {
   setup_serial();
 
-  TKIBI_LSM6DS3* sensor = new TKIBI_LSM6DS3(500, 500);
+  TKIBI_LSM6DS3* sensor = new TKIBI_LSM6DS3
+  (
+    /*accelerometerReadingSpeed_ms  =*/  500, 
+    /*gyroscopeReadingSpeed_ms      =*/  500
+  );
+  
   sensor->start();
 
   while(1)
   {
-    sensor->printRawData();
-    delay(500);
+    sensor->checkIfDistanceMoved();
   }
 }
 
