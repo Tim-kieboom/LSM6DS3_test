@@ -10,7 +10,7 @@ i used the platformIO extension on VScode to upload the test to a arduino uno
 
 # TKIBI_LSM6DS3 Object
 - Contructors:
-```
+```cpp
 TKIBI_LSM6DS3::TKIBI_LSM6DS3()
 {
   setup_Sensor();
